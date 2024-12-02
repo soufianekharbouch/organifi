@@ -17,10 +17,9 @@ async function fetchPromos() {
       });
     } catch (error) {
       console.error("ERROR :", error);
-      alert("ERROR.");
+      alert("ERROR."+JSON.stringify(error));
     }
   }
   
-  // Appeler fetchPromos lorsque la page est chargée
   document.addEventListener("DOMContentLoaded", fetchPromos);
   
