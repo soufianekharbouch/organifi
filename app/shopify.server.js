@@ -5,8 +5,11 @@ import {
   shopifyApp,
 } from "@shopify/shopify-app-remix/server";
 import { PrismaSessionStorage } from "@shopify/shopify-app-session-storage-prisma";
-import { restResources } from "@shopify/shopify-api/rest/admin/2024-10";
+import { restResources } from "@shopify/shopify-api/rest/admin/2024-07";
 import prisma from "./db.server";
+import express from "express";
+
+const app = express();
 
 const shopify = shopifyApp({
   apiKey: process.env.SHOPIFY_API_KEY,
@@ -24,6 +27,17 @@ const shopify = shopifyApp({
   ...(process.env.SHOP_CUSTOM_DOMAIN
     ? { customShopDomains: [process.env.SHOP_CUSTOM_DOMAIN] }
     : {}),
+});
+
+app.get("/api/promos", async (req, res) => {
+  try {
+    const promos = await prisma.promo.findMany();
+
+    res.status(200).json(promos);
+  } catch (error) {
+    console.error("ERROR :", error);
+    res.status(500).json({ error: "ERROR" });
+  }
 });
 
 export default shopify;

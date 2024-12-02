@@ -30,3 +30,12 @@ model Session {
   collaborator  Boolean?  @default(false)
   emailVerified Boolean?  @default(false)
 }
+model Promo {
+  id               Int      @id @default(autoincrement())
+  title            String
+  shop             String
+  targetProductId  String
+  giftProductId    String
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+}
