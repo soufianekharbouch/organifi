@@ -26,12 +26,11 @@ model Session {
 }
 
 model Promo {
-  id               Int      @id @default(autoincrement())
-  title            String
-  shop             String
-  targetProductId  String
-  giftProductId    String
-  isActive         Boolean  @default(true)
-  createdAt        DateTime @default(now())
+  id              Int      @id @default(autoincrement())
+  title           String
+  shop            String
+  targetProductId String
+  giftProductId   String
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
 }
-
