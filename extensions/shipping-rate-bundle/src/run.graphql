@@ -1,0 +1,44 @@
+query RunInput($selectedCollectionIds: [ID!]) {
+  cart {
+    deliveryGroups {
+      id
+      deliveryOptions {
+        handle
+        title
+      }
+      selectedDeliveryOption {
+        handle
+        title
+      }
+    }
+    lines {
+      quantity
+      cost {
+        amountPerQuantity {
+          amount
+        }
+      }
+      merchandise {
+        __typename
+        ...on ProductVariant {
+          id
+          product {
+            id
+            metafield(namespace: "custom", key: "pouch_qty") {
+              value
+            }
+            inCollections(ids:$selectedCollectionIds) {
+              collectionId
+              isMember
+            }
+          }
+        }
+      }
+    }
+  }
+  discountNode {
+    metafield(namespace: "$app:shipping-rate-bundle", key: "function-configuration") {
+      value
+    }
+  }
+}

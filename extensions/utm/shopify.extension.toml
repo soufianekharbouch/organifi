@@ -1,0 +1,20 @@
+api_version = "2024-07"
+
+[[extensions]]
+handle = "utm"
+name = "t:name"
+description = "t:description"
+type = "function"
+
+  [[extensions.targeting]]
+  target = "purchase.product-discount.run"
+  input_query = "src/run.graphql"
+  export = "run"
+
+  [extensions.build]
+  command = ""
+  path = "dist/function.wasm"
+
+  [extensions.ui.paths]
+    create = "/app/utm/:functionId/new"
+    details = "/app/utm/:functionId/:id" 

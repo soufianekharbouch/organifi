@@ -1,0 +1,44 @@
+query Input {
+  cart {
+    cost{
+    totalAmount{
+      amount
+    }
+    subtotalAmount{
+      amount
+    }
+    }
+    lines {
+      quantity
+      cost {
+        amountPerQuantity {
+          amount
+        }
+        totalAmount {
+          amount
+        }
+      }
+      merchandise {
+        __typename
+        ... on ProductVariant {
+          id
+          product {
+            id
+            handle
+          }
+        }
+      }
+      sellingPlanAllocation {
+        sellingPlan {
+          id
+        }
+      }
+    }
+    
+  }
+  discountNode {
+    metafield(namespace: "$app:gwp", key: "function-configuration") {
+      value
+    }
+  }
+}

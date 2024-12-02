@@ -1,0 +1,27 @@
+query RunInput {
+    cart {
+    lines {
+      quantity
+      cost{
+        amountPerQuantity{
+          amount
+        }
+      }
+      isFree_Shipping: attribute(key: "free_shipping") {
+            key
+            value
+      }
+      merchandise {
+        __typename
+        ...on ProductVariant {
+            id
+        }
+      }
+    }
+  }
+  discountNode {
+    metafield(namespace: "$app:shipping_rate", key: "function-configuration") {
+      value
+    }
+  }
+}

@@ -1,0 +1,48 @@
+query Input {
+  cart{
+    attribute(key:"discount_code"){
+      key
+      value
+    }
+    buyerIdentity{
+      customer{
+          lastName
+          hasTags(tags:"Green Subscription"){
+            tag
+          }
+      }
+    }
+    lines {
+      quantity
+      cost {
+        amountPerQuantity {
+          amount
+        }
+        totalAmount {
+          amount
+        }
+      }
+      merchandise {
+        __typename
+        ... on ProductVariant {
+          id
+          product {
+            id
+            handle
+          }
+        }
+      }
+      sellingPlanAllocation {
+        sellingPlan {
+          id
+        }
+      }
+    }
+  }
+  discountNode {
+    metafield(namespace: "$app:function-with-discount", key: "function-configuration") {
+      value
+    }
+  
+  }
+}

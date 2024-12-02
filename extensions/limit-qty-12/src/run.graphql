@@ -1,0 +1,15 @@
+query RunInput {
+  cart {
+    lines {
+      quantity
+      merchandise {
+        ... on ProductVariant {
+          product {
+            id
+            handle
+          }
+        }
+      }
+    }
+  }
+}

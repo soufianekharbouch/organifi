@@ -1,0 +1,27 @@
+query Input {
+  cart {
+    lines {
+      quantity
+      cost{
+        amountPerQuantity{
+          amount
+        }
+      }
+      isUtm: attribute(key: "from_term") {
+            key
+            value
+      }
+      merchandise {
+        __typename
+        ...on ProductVariant {
+            id
+        }
+      }
+    }
+  }
+    discountNode {
+    metafield(namespace: "$app:utm", key: "function-configuration") {
+      value
+    }
+  }
+}
