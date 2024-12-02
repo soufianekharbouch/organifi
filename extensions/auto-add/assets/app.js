@@ -5,7 +5,7 @@ async function fetchPromos() {
       const response = await fetch("https://organifi-1a031727f073.herokuapp.com/api/promos");
   
       if (!response.ok) {
-        throw new Error("Erreur lors de la récupération des promos.");
+        throw new Error("Error");
       }
 
       const promos = await response.json();
