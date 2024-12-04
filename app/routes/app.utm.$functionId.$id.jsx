@@ -14,7 +14,6 @@ import {
 import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
 import { useActionData, useLoaderData, useSubmit } from "@remix-run/react";
-import { useAppBridge } from "@shopify/app-bridge-react";
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 
@@ -76,7 +75,8 @@ export const action = async ({ request }) => {
   const formData = await request.formData();
   const Title = formData.get("Title");
   const functionId = formData.get("functionId");
-  const id = "gid://shopify/DiscountAutomaticNode/" + formData.get("id");
+  let id = formData.get("id");
+  id = "gid://shopify/DiscountAutomaticNode/" + id;
   const productHandles = formData.get("productHandles");
   const qtyTargets = formData.get("qtyTargets");
   const gift = formData.get("gift");
@@ -165,7 +165,6 @@ export default function Index() {
   const [giftQuantity, setGiftQuantity] = useState(1);
   const [discountType, setDiscountType] = useState("products");
   const [thresholdAmount, setThresholdAmount] = useState(100);
-  const app = useAppBridge();
 
   useEffect(() => {
     if (currentDiscount) {
@@ -182,34 +181,23 @@ export default function Index() {
     }
   }, [currentDiscount]);
 
-  const openPickerTargetProducts = async () => {
+  const handleProductSelection = async () => {
     try {
-      const picker = app.resourcePicker({
-        type: "product",
-        multiple: true,
-      });
-
-      const response = await picker;
+      const response = await window.openPicker("product", true); // Assume openPicker is implemented
       if (response && response.length > 0) {
         const selectedProducts = response.map((product) => product.handle);
         setProductsSelected(selectedProducts);
       }
     } catch (error) {
-      console.error("Error selecting target products:", error);
+      console.error("Error selecting target product:", error);
     }
   };
 
-  const openPickerGiftProducts = async () => {
+  const handleGiftSelection = async () => {
     try {
-      const picker = app.resourcePicker({
-        type: "product",
-        multiple: false,
-      });
-
-      const response = await picker;
+      const response = await window.openPicker("product", false); // Assume openPicker is implemented
       if (response && response.length > 0) {
-        const selectedGift = response[0].handle;
-        setProductGift(selectedGift);
+        setProductGift(response[0].handle);
       }
     } catch (error) {
       console.error("Error selecting gift product:", error);
@@ -230,7 +218,7 @@ export default function Index() {
     formData.append("thresholdAmount", thresholdAmount);
   }
 
-  const submit = useSubmit();
+  const submit = useSubmit(formData);
   const handleSave = () => submit(formData, { replace: true, method: "POST" });
 
   return (
@@ -251,7 +239,7 @@ export default function Index() {
               />
               {discountType === "products" ? (
                 <>
-                  <Button onClick={openPickerTargetProducts}>Select Target Products</Button>
+                  <Button onClick={handleProductSelection}>Select Target Products</Button>
                   <ul>
                     {productsSelected.map((product, index) => (
                       <li key={index}>{product}</li>
@@ -279,7 +267,7 @@ export default function Index() {
                 checked={onlySub}
                 onChange={(value) => setSub(value)}
               />
-              <Button onClick={openPickerGiftProducts}>Select Gift Product</Button>
+              <Button onClick={handleGiftSelection}>Select Gift Product</Button>
               {productGift && <p>Selected Gift: {productGift}</p>}
               <TextField
                 label="Gift Product Quantity"

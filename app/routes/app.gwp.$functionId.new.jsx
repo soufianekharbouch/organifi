@@ -9,8 +9,7 @@ import {
   Checkbox,
   PageActions,
   Select,
-} from "@shopify/polaris";
-
+}from "@shopify/polaris";
 import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
 import { useActionData, useLoaderData, useNavigation, useSubmit } from "@remix-run/react";
@@ -20,7 +19,6 @@ import { useState, useEffect, useCallback } from 'react';
 
 export const loader = async ({ request }) => {
   await authenticate.admin(request);
-
   const { admin } = await authenticate.admin(request);
   const response = await admin.graphql(
     `#graphql
@@ -34,9 +32,7 @@ export const loader = async ({ request }) => {
       }
     }`
   );
-
   const currentDiscount = await response.json();
-  
   return json({
     apiKey: process.env.SHOPIFY_API_KEY || "",
     host: process.env.SHOPIFY_APP_URL || "",
@@ -50,13 +46,12 @@ export const action = async ({ request }) => {
   const Title = formData.get("Title");
   const functionId = formData.get("functionId");
   const productHandles = formData.get("productHandles");
-  const qtyTargets = formData.get("qtyTargets"); // Capture qtyTargets
+  const qtyTargets = formData.get("qtyTargets");
   const gift = formData.get("gift");
   const onlySub = formData.get("onlySub");
   const giftQuantity = formData.get("giftQuantity");
   const discountType = formData.get("discountType");
   const thresholdAmount = formData.get("thresholdAmount");
-
   const { admin } = await authenticate.admin(request);
   const response = await admin.graphql(
     `#graphql
@@ -104,7 +99,6 @@ export const action = async ({ request }) => {
   );
   
   const responseJson = await response.json();
-  
   return json({
     resp: responseJson,
   });
@@ -174,8 +168,6 @@ export default function Index() {
       console.error("Error selecting target product:", error);
     }
   }
-
-
   const onluSubChanged = useCallback(
     (newValue) => setSub(newValue),
     [],
@@ -193,11 +185,8 @@ export default function Index() {
   if (discountType === 'threshold') {
     formData.append("thresholdAmount", thresholdAmount);
   }
-
   const submit = useSubmit(formData);
-
   const generateProduct = () => submit(formData, { replace: true, method: "POST" });
-
   return (
     <Page title="Create GWP discount V5" breadcrumbs={[{ content: "GWP Discount" }]}>
       <ui-title-bar title="Create GWP discount"></ui-title-bar>

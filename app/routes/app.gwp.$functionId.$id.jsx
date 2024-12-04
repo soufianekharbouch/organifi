@@ -8,14 +8,13 @@ import {
   Checkbox,
   PageActions,
   Select,
-  Box,
 } from "@shopify/polaris";
 
 import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
-import { useActionData, useLoaderData, useSubmit } from "@remix-run/react";
+import { useActionData, useLoaderData, useSubmit,redirect } from "@remix-run/react";
 import { useAppBridge } from "@shopify/app-bridge-react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 export const loader = async ({ request, params }) => {
@@ -84,7 +83,6 @@ export const action = async ({ request }) => {
   const giftQuantity = formData.get("giftQuantity");
   const discountType = formData.get("discountType");
   const thresholdAmount = formData.get("thresholdAmount");
-
   const { admin } = await authenticate.admin(request);
   const response = await admin.graphql(
     `#graphql
@@ -136,7 +134,7 @@ export const action = async ({ request }) => {
               giftQuantity: giftQuantity,
               discountType: discountType,
               thresholdAmount: discountType === "threshold" ? thresholdAmount : null,
-              is_sub: onlySub,
+              is_sub: onlySub.toString(),
             }),
           },
         ],
@@ -145,7 +143,6 @@ export const action = async ({ request }) => {
   );
 
   const responseJson = await response.json();
-
   return json({
     resp: responseJson,
   });
@@ -153,10 +150,8 @@ export const action = async ({ request }) => {
 
 export default function Index() {
   const { id } = useParams();
-  const actionData = useActionData();
-  const { currentDiscount, discountsURL } = useLoaderData();
-  const resp = actionData;
-
+  const actionData = useActionData(); 
+  const { currentDiscount } = useLoaderData();
   const [Title, setTitleValue] = useState("");
   const [onlySub, setSub] = useState(false);
   const [productsSelected, setProductsSelected] = useState([]);
@@ -166,13 +161,24 @@ export default function Index() {
   const [discountType, setDiscountType] = useState("products");
   const [thresholdAmount, setThresholdAmount] = useState(100);
   const app = useAppBridge();
-
   useEffect(() => {
+    if (actionData) {
+      shopify.toast.show(JSON.stringify(actionData));
+      if (actionData.resp.data.discountAutomaticAppUpdate.userErrors.length > 0) {
+        let error = actionData.resp.data.discountAutomaticAppUpdate.userErrors[0];
+        shopify.toast.show("Error: " + error.field[1] + " " + error.message, {
+          autoClose: 2000,
+          hideProgressBar: true,
+          isError: true,
+        });
+      } else {
+        shopify.toast.show("Discount Created!");
+      }
+    }
     if (currentDiscount) {
       const data = JSON.parse(currentDiscount.data.automaticDiscountNode.metafields.nodes[0].value);
-
       setTitleValue(currentDiscount.data.automaticDiscountNode.automaticDiscount.title);
-      setSub(data.is_sub);
+      setSub(data.is_sub === "true");
       setProductsSelected(data.product.split(","));
       setQtyTargets(data.qtyTargets || 1);
       setProductGift(data.gift);
@@ -180,7 +186,7 @@ export default function Index() {
       setDiscountType(data.discountType);
       setThresholdAmount(data.thresholdAmount || 100);
     }
-  }, [currentDiscount]);
+  }, [actionData,currentDiscount]);
 
   const openPickerTargetProducts = async () => {
     try {
@@ -231,7 +237,9 @@ export default function Index() {
   }
 
   const submit = useSubmit();
-  const handleSave = () => submit(formData, { replace: true, method: "POST" });
+  const handleSave = async () => {
+    await submit(formData, { replace: true, method: "POST" });
+  };
 
   return (
     <Page title="Update GWP Discount" breadcrumbs={[{ content: "GWP Discount" }]}>
@@ -240,6 +248,7 @@ export default function Index() {
           <Layout.Section>
             <form>
               <TextField label="Title" value={Title} onChange={(value) => setTitleValue(value)} />
+              <br/><br/>
               <Select
                 label="Discount Type"
                 options={[
@@ -249,6 +258,7 @@ export default function Index() {
                 value={discountType}
                 onChange={(value) => setDiscountType(value)}
               />
+               <br/><br/>
               {discountType === "products" ? (
                 <>
                   <Button onClick={openPickerTargetProducts}>Select Target Products</Button>
@@ -257,15 +267,17 @@ export default function Index() {
                       <li key={index}>{product}</li>
                     ))}
                   </ul>
+                  <br/><br/>
                   <TextField
                     label="Quantity of Target Products"
                     type="number"
                     value={qtyTargets}
                     onChange={(value) => setQtyTargets(value)}
                     min={1}
-                  />
+                  /> <br/><br/>
                 </>
               ) : (
+                
                 <TextField
                   label="Threshold Amount"
                   type="number"
@@ -274,13 +286,16 @@ export default function Index() {
                   min={1}
                 />
               )}
+        
               <Checkbox
                 label="Only Subscription Product"
                 checked={onlySub}
                 onChange={(value) => setSub(value)}
               />
+               <br/><br/>
               <Button onClick={openPickerGiftProducts}>Select Gift Product</Button>
               {productGift && <p>Selected Gift: {productGift}</p>}
+              <br/><br/>
               <TextField
                 label="Gift Product Quantity"
                 type="number"
