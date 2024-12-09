@@ -1,6 +1,6 @@
 import { json } from "@remix-run/node"; 
 import prisma from "../db.server"; 
-import { cors } from 'remix-utils/cors';
+
 
 
 export const loader = async ({params}) => {
