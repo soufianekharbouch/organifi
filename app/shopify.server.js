@@ -9,9 +9,7 @@ import { restResources } from "@shopify/shopify-api/rest/admin/2024-07";
 import prisma from "./db.server";
 import express from "express";
 import cors from "cors";
-
 const app = express();
-
 app.use(
   cors({
     origin: "*", 
@@ -37,16 +35,6 @@ const shopify = shopifyApp({
     : {}),
 });
 
-app.get("/api/promos", async (req, res) => {
-  try {
-    const promos = await prisma.promo.findMany();
-
-    res.status(200).json(promos);
-  } catch (error) {
-    console.error("ERROR :", error);
-    res.status(500).json({ error: "ERROR" });
-  }
-});
 
 export default shopify;
 export const apiVersion = ApiVersion.October24;
