@@ -13,7 +13,8 @@ export const loader = async ({params}) => {
       },
     });
 
-    return await cors( promos);
+
+    return json(promos);
   } catch (error) {
     console.error("Error :", error);
 
