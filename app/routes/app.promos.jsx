@@ -2,9 +2,28 @@ import { useLoaderData, Form } from "@remix-run/react";
 import { Page, Layout, Card, DataTable, Button, Link } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import db from "../db.server";
+import { authenticate } from "../shopify.server";
+import { json } from "@remix-run/node";
 
 // Loader to fetch promos
-export const loader = async () => {
+export const loader = async ({request}) => {
+  await authenticate.admin(request);
+  const { admin } = await authenticate.admin(request);
+  const response = await admin.graphql(
+    `#graphql
+    query shop {
+      shop {
+        name
+        primaryDomain {
+          url
+          host
+        }
+      }
+    }`
+  );
+
+  const shopData = await response.json();
+
   const promos = await db.promo.findMany({
     select: {
       id: true,
@@ -12,13 +31,17 @@ export const loader = async () => {
       targetProductId: true,
       giftProductId: true,
       isActive: true,
+      shop: true,
+    },
+    where: {
+      shop:shopData.data.shop.name,
     },
   });
 
   return { promos };
 };
 
-// Action to handle deletion
+
 export const action = async ({ request }) => {
   const formData = await request.formData();
   const promoId = formData.get("promoId");

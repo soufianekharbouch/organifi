@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "e467a00b9e91ccd6a74a87f57a8603bd"
-application_url = "https://ok-monetary-miles-ray.trycloudflare.com"
+application_url = "https://rss-friends-johns-nowhere.trycloudflare.com"
 embedded = true
 name = "Organifi"
 handle = "organifi-3"
@@ -19,9 +19,9 @@ scopes = "read_discounts,write_discounts,write_products"
 
 [auth]
 redirect_urls = [
-  "https://ok-monetary-miles-ray.trycloudflare.com/auth/callback",
-  "https://ok-monetary-miles-ray.trycloudflare.com/auth/shopify/callback",
-  "https://ok-monetary-miles-ray.trycloudflare.com/api/auth/callback"
+  "https://rss-friends-johns-nowhere.trycloudflare.com/auth/callback",
+  "https://rss-friends-johns-nowhere.trycloudflare.com/auth/shopify/callback",
+  "https://rss-friends-johns-nowhere.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]

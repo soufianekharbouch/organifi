@@ -1,13 +1,40 @@
-import { useActionData, Form, redirect } from "@remix-run/react";
+import { useActionData, Form, useLoaderData, redirect } from "@remix-run/react";
 import db from "../db.server";
 import { Page, Layout, Card, TextField, Button } from "@shopify/polaris";
 import { useState } from "react";
 import { useAppBridge } from "@shopify/app-bridge-react";
+import { authenticate } from "../shopify.server";
+import { json } from "@remix-run/node";
+
+export const loader = async ({ request }) => {
+  await authenticate.admin(request);
+
+  const { admin } = await authenticate.admin(request);
+  const response = await admin.graphql(
+    `#graphql
+    query shop {
+      shop {
+        name
+        primaryDomain {
+          url
+          host
+        }
+      }
+    }`
+  );
+
+  const shopData = await response.json();
+
+  return json({
+    shop: shopData.data.shop
+  });
+};
 
 
 export const action = async ({ request }) => {
   const formData = await request.formData();
   const title = formData.get("promoTitle");
+  const shopName = formData.get("shopName");
   const targetProductId = formData.get("targetProductId");
   const giftProductId = formData.get("giftProductId");
 
@@ -19,7 +46,7 @@ export const action = async ({ request }) => {
     await db.promo.create({
       data: {
         title,
-        shop: "example-shop.myshopify.com", // Replace with logic to get the current shop
+        shop: shopName, 
         targetProductId,
         giftProductId,
         isActive: true,
@@ -33,7 +60,9 @@ export const action = async ({ request }) => {
 };
 
 export default function NewPromo() {
+  const { shop} = useLoaderData();
   const actionData = useActionData();
+  const [shopName, setShopName] = useState(shop.name);
   const [promoTitle, setPromoTitle] = useState("");
   const [targetProduct, setTargetProduct] = useState(null);
   const [giftProduct, setGiftProduct] = useState(null);
@@ -82,7 +111,7 @@ export default function NewPromo() {
               {/* Hidden Fields for Product IDs */}
               <input type="hidden" name="targetProductId" value={targetProduct?.id || ""} />
               <input type="hidden" name="giftProductId" value={giftProduct?.id || ""} />
-
+              <input type="hidden" name="shopName" value={shopName} />
               {actionData?.error && (
                 <p style={{ color: "red", marginTop: "10px" }}>{actionData.error}</p>
               )}
