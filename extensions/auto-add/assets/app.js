@@ -2,7 +2,7 @@
 async function fetchPromos() {
     try {
 
-      const response = await fetch("https://organifi-1a031727f073.herokuapp.com/api/promos");
+      const response = await fetch("https://organifi-1a031727f073.herokuapp.com/api/promos/organifi-tests");
   
       if (!response.ok) {
         throw new Error("Error");

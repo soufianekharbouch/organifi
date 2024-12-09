@@ -13,7 +13,6 @@ import cors from "cors";
 const app = express();
 
 app.use(
-  "/api",
   cors({
     origin: "*", 
     methods: "GET,POST,PUT,DELETE", 
