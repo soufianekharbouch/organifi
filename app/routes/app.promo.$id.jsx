@@ -7,15 +7,8 @@ import { authenticate } from "../shopify.server";
 import { json } from "@remix-run/node";
 
 export const loader = async ({ params, request }) => {
+  const { id } = params;
   await authenticate.admin(request);
-
-  const promo = await db.promo.findUnique({
-    where: { id: 5 }, // Replace 2 with a dynamic ID if needed
-  });
-
-  if (!promo) {
-    throw new Response("Promo not found", { status: 404 });
-  }
 
   const { admin } = await authenticate.admin(request);
   const response = await admin.graphql(
@@ -28,6 +21,15 @@ export const loader = async ({ params, request }) => {
   );
 
   const shopData = await response.json();
+  const promo = await db.promo.findUnique({
+    where: { id: Number(id),shop: shopData.data.shop.name}, // Replace 2 with a dynamic ID if needed
+  });
+
+  if (!promo) {
+    throw new Response("Promo not found", { status: 404 });
+  }
+
+
 
   return json({
     promo,
@@ -36,6 +38,7 @@ export const loader = async ({ params, request }) => {
 };
 
 export const action = async ({ request, params }) => {
+  const { id } = params;
   const formData = await request.formData();
   const title = formData.get("promoTitle");
   const targetProductJson = formData.get("targetProduct");
@@ -47,7 +50,7 @@ export const action = async ({ request, params }) => {
 
   try {
     await db.promo.update({
-      where: { id: 5 }, // Replace 2 with a dynamic ID if needed
+      where: { id: Number(id) }, // Replace 2 with a dynamic ID if needed
       data: {
         title,
         targetProduct: targetProductJson,

@@ -47,17 +47,17 @@ export const action = async ({ request }) => {
   const formData = await request.formData();
   const promoId = parseInt(formData.get("promoId"), 10);
 
-  if (promoId) {
-    try {
-      await db.promo.delete({ where: { id: promoId } });
-      return json({ success: true, message: "Promo deleted successfully." });
-    } catch (error) {
-      console.error("Error deleting promo:", error);
-      return json({ success: false, message: "Failed to delete the promo. Please try again." });
-    }
+  if (!promoId) {
+    return json({ success: false, message: "Promo ID is missing." });
   }
 
-  return json({ success: false, message: "Promo ID is missing." });
+  try {
+    await db.promo.delete({ where: { id: promoId } });
+    return json({ success: true, message: "Promo deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting promo:", error);
+    return json({ success: false, message: "Failed to delete the promo. Please try again." });
+  }
 };
 
 export default function PromoList() {
@@ -74,10 +74,6 @@ export default function PromoList() {
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedPromoId(null);
-  };
-
-  const reloadPromos = async () => {
-    window.location.reload(); // Reload the page to fetch the latest promos
   };
 
   // Helper function to safely parse JSON
@@ -107,7 +103,7 @@ export default function PromoList() {
         </Button>
 
         {/* Delete Button */}
-        <Button plain destructive onClick={() => handleDelete(promo.id)}>
+        <Button destructive plain onClick={() => handleDelete(promo.id)}>
           Delete
         </Button>
       </div>,
@@ -145,10 +141,17 @@ export default function PromoList() {
           primaryAction={{
             content: "Delete",
             destructive: true,
-            onAction: () => {
-              document.getElementById(`delete-form-${selectedPromoId}`).submit();
-              closeModal();
-              reloadPromos(); // Reload promos after deletion
+            onAction: async () => {
+              try {
+                // Submit delete form
+                const form = document.getElementById(`delete-form-${selectedPromoId}`);
+                if (form) {
+                  form.submit();
+                }
+                setIsModalOpen(false);
+              } catch (error) {
+                console.error("Error deleting promo:", error);
+              }
             },
           }}
           secondaryAction={{
