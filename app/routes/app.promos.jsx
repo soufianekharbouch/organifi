@@ -1,9 +1,9 @@
-import { useLoaderData, Form } from "@remix-run/react";
-import { Page, Layout, Card, DataTable, Button, Modal, TextContainer } from "@shopify/polaris";
+import { useLoaderData, Form, useActionData } from "@remix-run/react";
+import { Page, Layout, Card, DataTable, Button, Modal, TextContainer, Banner } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import db from "../db.server";
 import { authenticate } from "../shopify.server";
-import { json, redirect } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useState } from "react";
 
 // Loader to fetch promos
@@ -50,18 +50,19 @@ export const action = async ({ request }) => {
   if (promoId) {
     try {
       await db.promo.delete({ where: { id: promoId } });
-      return redirect("/app/promos");
+      return json({ success: true, message: "Promo deleted successfully." });
     } catch (error) {
       console.error("Error deleting promo:", error);
-      return { error: "Failed to delete the promo. Please try again." };
+      return json({ success: false, message: "Failed to delete the promo. Please try again." });
     }
   }
 
-  return null;
+  return json({ success: false, message: "Promo ID is missing." });
 };
 
 export default function PromoList() {
   const { promos } = useLoaderData();
+  const actionData = useActionData();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPromoId, setSelectedPromoId] = useState(null);
 
@@ -73,6 +74,10 @@ export default function PromoList() {
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedPromoId(null);
+  };
+
+  const reloadPromos = async () => {
+    window.location.reload(); // Reload the page to fetch the latest promos
   };
 
   // Helper function to safely parse JSON
@@ -118,6 +123,9 @@ export default function PromoList() {
       </TitleBar>
       <Layout>
         <Layout.Section>
+          {actionData?.message && (
+            <Banner status={actionData.success ? "success" : "critical"}>{actionData.message}</Banner>
+          )}
           <Card>
             <DataTable
               columnContentTypes={["text", "text", "text", "text", "action"]}
@@ -137,7 +145,11 @@ export default function PromoList() {
           primaryAction={{
             content: "Delete",
             destructive: true,
-            onAction: () => document.getElementById(`delete-form-${selectedPromoId}`).submit(),
+            onAction: () => {
+              document.getElementById(`delete-form-${selectedPromoId}`).submit();
+              closeModal();
+              reloadPromos(); // Reload promos after deletion
+            },
           }}
           secondaryAction={{
             content: "Cancel",
