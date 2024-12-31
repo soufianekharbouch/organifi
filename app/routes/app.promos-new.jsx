@@ -147,6 +147,7 @@ export default function NewPromo() {
             </Form>
           </Card>
         </Layout.Section>
+        
       </Layout>
     </Page>
   );

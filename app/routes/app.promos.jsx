@@ -1,5 +1,5 @@
 import { useLoaderData, Form, useActionData } from "@remix-run/react";
-import { Page, Layout, Card, DataTable, Button, Modal, TextContainer, Banner } from "@shopify/polaris";
+import { Page, Layout, Card, DataTable, Button, Modal, TextContainer, Banner, Link } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import db from "../db.server";
 import { authenticate } from "../shopify.server";
@@ -173,6 +173,8 @@ export default function PromoList() {
           <input type="hidden" name="promoId" value={promo.id} />
         </Form>
       ))}
+
+      <Layout.Section><Link  url="/app/promos-new">Create New Promo</Link></Layout.Section>
     </Page>
   );
 }

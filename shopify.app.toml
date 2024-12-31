@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "e467a00b9e91ccd6a74a87f57a8603bd"
-application_url = "https://physiology-cm-ground-lc.trycloudflare.com"
+application_url = "https://amsterdam-third-initiative-diy.trycloudflare.com"
 embedded = true
 name = "Organifi"
 handle = "organifi-3"
@@ -19,9 +19,9 @@ scopes = "read_discounts,write_discounts,write_products"
 
 [auth]
 redirect_urls = [
-  "https://physiology-cm-ground-lc.trycloudflare.com/auth/callback",
-  "https://physiology-cm-ground-lc.trycloudflare.com/auth/shopify/callback",
-  "https://physiology-cm-ground-lc.trycloudflare.com/api/auth/callback"
+  "https://amsterdam-third-initiative-diy.trycloudflare.com/auth/callback",
+  "https://amsterdam-third-initiative-diy.trycloudflare.com/auth/shopify/callback",
+  "https://amsterdam-third-initiative-diy.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]
