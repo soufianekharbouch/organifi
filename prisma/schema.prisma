@@ -29,8 +29,8 @@ model Promo {
   id              Int      @id @default(autoincrement())
   title           String
   shop            String
-  targetProductId String
-  giftProductId   String
+  targetProduct   String?  // Temporarily nullable
+  giftProduct     String?  // Temporarily nullable
   isActive        Boolean  @default(true)
   createdAt       DateTime @default(now())
 }

@@ -26,54 +26,57 @@ export const loader = async ({ request }) => {
   const shopData = await response.json();
 
   return json({
-    shop: shopData.data.shop
+    shop: shopData.data.shop,
   });
 };
-
 
 export const action = async ({ request }) => {
   const formData = await request.formData();
   const title = formData.get("promoTitle");
   const shopName = formData.get("shopName");
-  const targetProductId = formData.get("targetProductId");
-  const giftProductId = formData.get("giftProductId");
+  const targetProduct = formData.get("targetProduct");
+  const giftProduct = formData.get("giftProduct");
 
-  if (!title || !targetProductId || !giftProductId) {
+  if (!title || !targetProduct || !giftProduct) {
     return { error: "All fields are required." };
   }
 
   try {
+    // Parse JSON inputs
+    const targetProductData = JSON.parse(targetProduct);
+    const giftProductData = JSON.parse(giftProduct);
+
     await db.promo.create({
       data: {
         title,
-        shop: shopName, 
-        targetProductId,
-        giftProductId,
+        shop: shopName,
+        targetProduct: JSON.stringify(targetProductData),
+        giftProduct: JSON.stringify(giftProductData),
         isActive: true,
       },
     });
     return redirect("/app/promos");
   } catch (error) {
     console.error("Error creating promo:", error);
-    return { error: "Failed to create the promo. Please try again." + error };
+    return { error: `Failed to create the promo. ${error.message}` };
   }
 };
 
 export default function NewPromo() {
-  const { shop} = useLoaderData();
+  const { shop } = useLoaderData();
   const actionData = useActionData();
-  const [shopName, setShopName] = useState(shop.name);
+
   const [promoTitle, setPromoTitle] = useState("");
   const [targetProduct, setTargetProduct] = useState(null);
   const [giftProduct, setGiftProduct] = useState(null);
+
   const app = useAppBridge();
 
   async function openPickerTargetProduct() {
     try {
       const response = await app.resourcePicker({ type: "product", multiple: false });
-      if (response) {
-        const selectedProduct = response[0];
-        setTargetProduct({ id: selectedProduct.id, title: selectedProduct.title });
+      if (response?.[0]) {
+        setTargetProduct(response[0]); // Save selected product directly
       }
     } catch (error) {
       console.error("Error selecting target product:", error);
@@ -83,9 +86,8 @@ export default function NewPromo() {
   async function openPickerGiftProduct() {
     try {
       const response = await app.resourcePicker({ type: "product", multiple: false });
-      if (response) {
-        const selectedProduct = response[0];
-        setGiftProduct({ id: selectedProduct.id, title: selectedProduct.title });
+      if (response?.[0]) {
+        setGiftProduct(response[0]); // Save selected product directly
       }
     } catch (error) {
       console.error("Error selecting gift product:", error);
@@ -108,10 +110,19 @@ export default function NewPromo() {
                 required
               />
 
-              {/* Hidden Fields for Product IDs */}
-              <input type="hidden" name="targetProductId" value={targetProduct?.id || ""} />
-              <input type="hidden" name="giftProductId" value={giftProduct?.id || ""} />
-              <input type="hidden" name="shopName" value={shopName} />
+              {/* Hidden Inputs to Submit Product Data */}
+              <input
+                type="hidden"
+                name="targetProduct"
+                value={JSON.stringify(targetProduct) || ""}
+              />
+              <input
+                type="hidden"
+                name="giftProduct"
+                value={JSON.stringify(giftProduct) || ""}
+              />
+              <input type="hidden" name="shopName" value={shop.name} />
+
               {actionData?.error && (
                 <p style={{ color: "red", marginTop: "10px" }}>{actionData.error}</p>
               )}
