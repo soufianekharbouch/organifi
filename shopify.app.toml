@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "e467a00b9e91ccd6a74a87f57a8603bd"
-application_url = "https://contrary-innovations-remaining-examination.trycloudflare.com"
+application_url = "https://targets-turning-attributes-distributions.trycloudflare.com"
 embedded = true
 name = "Organifi"
 handle = "organifi-3"
@@ -19,9 +19,9 @@ scopes = "read_discounts,write_discounts,write_products"
 
 [auth]
 redirect_urls = [
-  "https://contrary-innovations-remaining-examination.trycloudflare.com/auth/callback",
-  "https://contrary-innovations-remaining-examination.trycloudflare.com/auth/shopify/callback",
-  "https://contrary-innovations-remaining-examination.trycloudflare.com/api/auth/callback"
+  "https://targets-turning-attributes-distributions.trycloudflare.com/auth/callback",
+  "https://targets-turning-attributes-distributions.trycloudflare.com/auth/shopify/callback",
+  "https://targets-turning-attributes-distributions.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]
