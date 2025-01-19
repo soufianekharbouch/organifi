@@ -6,8 +6,7 @@ import { useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 import { json } from "@remix-run/node";
 
-export const loader = async ({ params, request }) => {
-  const { id } = params;
+export const loader = async ({ request }) => {
   await authenticate.admin(request);
 
   const { admin } = await authenticate.admin(request);
@@ -21,79 +20,65 @@ export const loader = async ({ params, request }) => {
   );
 
   const shopData = await response.json();
-  const promo = await db.promo.findUnique({
-    where: { id: Number(id),shop: shopData.data.shop.name}, // Replace 2 with a dynamic ID if needed
-  });
-
-  if (!promo) {
-    throw new Response("Promo not found", { status: 404 });
-  }
-
-
 
   return json({
-    promo,
     shop: shopData.data.shop,
   });
 };
 
-export const action = async ({ request, params }) => {
-  const { id } = params;
+export const action = async ({ request }) => {
   const formData = await request.formData();
   const title = formData.get("promoTitle");
-  const targetProductJson = formData.get("targetProduct");
+  const shopName = formData.get("shopName");
+  const targetCollectionJson = formData.get("targetCollection");
   const giftProductJson = formData.get("giftProduct");
+  const targetQuantity = formData.get("targetQuantity");
+  const giftQuantity = formData.get("giftQuantity");
 
-  if (!title || !targetProductJson || !giftProductJson) {
+  if (!title || !targetCollectionJson || !giftProductJson || !targetQuantity || !giftQuantity) {
     return { error: "All fields are required." };
   }
 
   try {
-    await db.promo.update({
-      where: { id: Number(id) }, // Replace 2 with a dynamic ID if needed
+    await db.promo.create({
       data: {
         title,
-        targetProduct: targetProductJson,
+        shop: shopName,
+        collectionTarget: targetCollectionJson,
         giftProduct: giftProductJson,
+        targetQuantity: Number(targetQuantity),
+        giftQuantity: Number(giftQuantity),
         isActive: true,
+        type:"collection_target",
       },
     });
 
     return redirect("/app/promos");
   } catch (error) {
-    console.error("Error updating promo:", error);
-    return { error: "Failed to update the promo. Please try again." };
+    console.error("Error creating promo:", error);
+    return { error: "Failed to create the promo. Please try again."+error};
   }
 };
 
-export default function EditPromo() {
-  const { promo, shop } = useLoaderData();
+export default function NewPromo() {
+  const { shop } = useLoaderData();
   const actionData = useActionData();
 
-  // Parse JSON safely
-  const parseJSON = (jsonString) => {
-    try {
-      return JSON.parse(jsonString) || {};
-    } catch (error) {
-      console.error("Invalid JSON:", error);
-      return {};
-    }
-  };
-
-  const [promoTitle, setPromoTitle] = useState(promo.title);
-  const [targetProduct, setTargetProduct] = useState(parseJSON(promo.targetProduct));
-  const [giftProduct, setGiftProduct] = useState(parseJSON(promo.giftProduct));
+  const [promoTitle, setPromoTitle] = useState("");
+  const [targetCollection, setTargetCollection] = useState(null);
+  const [giftProduct, setGiftProduct] = useState(null);
+  const [targetQuantity, setTargetQuantity] = useState(1);
+  const [giftQuantity, setGiftQuantity] = useState(1);
   const app = useAppBridge();
 
-  async function openPickerTargetProduct() {
+  async function openPickerTargetCollection() {
     try {
-      const response = await app.resourcePicker({ type: "product", multiple: false });
+      const response = await app.resourcePicker({ type: "collection", multiple: false });
       if (response && response[0]) {
-        const selectedProduct = response[0];
-        setTargetProduct(selectedProduct); // Directly save the product object
+        setTargetCollection(response[0]);
       }
     } catch (error) {
-      console.error("Error selecting target product:", error);
+      console.error("Error selecting target collection:", error);
     }
   }
 
@@ -101,8 +86,7 @@ export default function EditPromo() {
     try {
       const response = await app.resourcePicker({ type: "product", multiple: false });
       if (response && response[0]) {
-        const selectedProduct = response[0];
-        setGiftProduct(selectedProduct); // Directly save the product object
+        setGiftProduct(response[0]);
       }
     } catch (error) {
       console.error("Error selecting gift product:", error);
@@ -110,7 +94,7 @@ export default function EditPromo() {
   }
 
   return (
-    <Page title="Edit Promo">
+    <Page title="Create a New Promo">
       <Layout>
         <Layout.Section>
           <Card sectioned>
@@ -124,12 +108,11 @@ export default function EditPromo() {
                 autoComplete="off"
                 required
               />
-
-              {/* Hidden Fields for Product JSON */}
+              <input type="hidden" name="shopName" value={shop.name} />
               <input
                 type="hidden"
-                name="targetProduct"
-                value={JSON.stringify(targetProduct) || ""}
+                name="targetCollection"
+                value={JSON.stringify(targetCollection) || ""}
               />
               <input
                 type="hidden"
@@ -137,26 +120,48 @@ export default function EditPromo() {
                 value={JSON.stringify(giftProduct) || ""}
               />
 
+
+
               {actionData?.error && (
                 <p style={{ color: "red", marginTop: "10px" }}>{actionData.error}</p>
               )}
 
               <br />
-              <Button onClick={openPickerTargetProduct} primary>
-                Select Target Product: {targetProduct?.title || "None"}
+              <Button onClick={openPickerTargetCollection} primary>
+                Select Target Collection: {targetCollection?.title || "None"}
               </Button>
 
               <br />
+              <TextField
+                label="Target Quantity"
+                value={targetQuantity.toString()}
+                onChange={(value) => setTargetQuantity(Number(value))}
+                name="targetQuantity"
+                type="number"
+                min={1}
+                required
+              />
               <br />
               <Button onClick={openPickerGiftProduct} primary>
                 Select Gift Product: {giftProduct?.title || "None"}
               </Button>
 
               <br />
+              
+
+              <TextField
+                label="Gift Quantity"
+                value={giftQuantity.toString()}
+                onChange={(value) => setGiftQuantity(Number(value))}
+                name="giftQuantity"
+                type="number"
+                min={1}
+                required
+              />
               <br />
 
               <Button submit primary>
-                Update Promo
+                Create Promo
               </Button>
             </Form>
           </Card>

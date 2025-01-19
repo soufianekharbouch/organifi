@@ -15,10 +15,6 @@ export const loader = async ({ request }) => {
     query shop {
       shop {
         name
-        primaryDomain {
-          url
-          host
-        }
       }
     }`
   );
@@ -34,31 +30,31 @@ export const action = async ({ request }) => {
   const formData = await request.formData();
   const title = formData.get("promoTitle");
   const shopName = formData.get("shopName");
-  const targetProduct = formData.get("targetProduct");
-  const giftProduct = formData.get("giftProduct");
+  const giftProductJson = formData.get("giftProduct");
+  const amountToSpend = formData.get("amountToSpend");
+  const giftQuantity = formData.get("giftQuantity");
 
-  if (!title || !targetProduct || !giftProduct) {
+  if (!title || !giftProductJson || !amountToSpend || !giftQuantity) {
     return { error: "All fields are required." };
   }
 
   try {
-    // Parse JSON inputs
-    const targetProductData = JSON.parse(targetProduct);
-    const giftProductData = JSON.parse(giftProduct);
-
     await db.promo.create({
       data: {
         title,
         shop: shopName,
-        targetProduct: JSON.stringify(targetProductData),
-        giftProduct: JSON.stringify(giftProductData),
+        giftProduct: giftProductJson,
+        amount_to_spend: Number(amountToSpend),
+        giftQuantity: Number(giftQuantity),
         isActive: true,
+        type:"threshold",
       },
     });
+
     return redirect("/app/promos");
   } catch (error) {
     console.error("Error creating promo:", error);
-    return { error: `Failed to create the promo. ${error.message}` };
+    return { error: "Failed to create the promo. Please try again." +error};
   }
 };
 
@@ -67,27 +63,16 @@ export default function NewPromo() {
   const actionData = useActionData();
 
   const [promoTitle, setPromoTitle] = useState("");
-  const [targetProduct, setTargetProduct] = useState(null);
   const [giftProduct, setGiftProduct] = useState(null);
-
+  const [amountToSpend, setAmountToSpend] = useState(0.0);
+  const [giftQuantity, setGiftQuantity] = useState(1);
   const app = useAppBridge();
-
-  async function openPickerTargetProduct() {
-    try {
-      const response = await app.resourcePicker({ type: "product", multiple: false });
-      if (response?.[0]) {
-        setTargetProduct(response[0]); // Save selected product directly
-      }
-    } catch (error) {
-      console.error("Error selecting target product:", error);
-    }
-  }
 
   async function openPickerGiftProduct() {
     try {
       const response = await app.resourcePicker({ type: "product", multiple: false });
-      if (response?.[0]) {
-        setGiftProduct(response[0]); // Save selected product directly
+      if (response && response[0]) {
+        setGiftProduct(response[0]);
       }
     } catch (error) {
       console.error("Error selecting gift product:", error);
@@ -95,7 +80,7 @@ export default function NewPromo() {
   }
 
   return (
-    <Page title="Create a New Promo">
+    <Page title="Create a New Threshold Promo">
       <Layout>
         <Layout.Section>
           <Card sectioned>
@@ -109,36 +94,43 @@ export default function NewPromo() {
                 autoComplete="off"
                 required
               />
-
-              {/* Hidden Inputs to Submit Product Data */}
-              <input
-                type="hidden"
-                name="targetProduct"
-                value={JSON.stringify(targetProduct) || ""}
-              />
+              <input type="hidden" name="shopName" value={shop.name} />
               <input
                 type="hidden"
                 name="giftProduct"
                 value={JSON.stringify(giftProduct) || ""}
               />
-              <input type="hidden" name="shopName" value={shop.name} />
 
               {actionData?.error && (
                 <p style={{ color: "red", marginTop: "10px" }}>{actionData.error}</p>
               )}
 
               <br />
-              <Button onClick={openPickerTargetProduct} primary>
-                Select Target Product: {targetProduct?.title || "None"}
-              </Button>
-
-              <br />
+              <TextField
+                label="Amount to Spend"
+                value={amountToSpend.toString()}
+                onChange={(value) => setAmountToSpend(parseFloat(value))}
+                name="amountToSpend"
+                type="number"
+                min={0.0}
+                step={0.01}
+                required
+              />
               <br />
               <Button onClick={openPickerGiftProduct} primary>
                 Select Gift Product: {giftProduct?.title || "None"}
               </Button>
 
               <br />
+              <TextField
+                label="Gift Quantity"
+                value={giftQuantity.toString()}
+                onChange={(value) => setGiftQuantity(Number(value))}
+                name="giftQuantity"
+                type="number"
+                min={1}
+                required
+              />
               <br />
 
               <Button submit primary>
@@ -147,7 +139,6 @@ export default function NewPromo() {
             </Form>
           </Card>
         </Layout.Section>
-        
       </Layout>
     </Page>
   );
