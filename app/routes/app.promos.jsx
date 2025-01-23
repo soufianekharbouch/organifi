@@ -152,8 +152,8 @@ const closeViewModal = () => {
           )}
           <Card>
             <DataTable
-              columnContentTypes={["text", "text", "text", "text", "action"]}
-              headings={["Promo Title", "Target Product", "Gift Product", "Status", "Actions"]}
+              columnContentTypes={["text", "text", "action"]}
+              headings={["Promo Title",  "Type", "Actions"]}
               rows={rows}
             />
           </Card>

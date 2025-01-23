@@ -1,6 +1,6 @@
 import { useActionData, Form, useLoaderData, redirect } from "@remix-run/react";
 import db from "../db.server";
-import { Page, Layout, Card, TextField, Button } from "@shopify/polaris";
+import { Page, Layout, Card,ButtonGroup, TextField, Button } from "@shopify/polaris";
 import { useState } from "react";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
@@ -176,10 +176,14 @@ export default function EditPromo() {
                 required
               />
               <br />
-
-              <Button submit primary>
+              <ButtonGroup>
+                <Button submit variant="primary">
                 Update Promo
-              </Button>
+                </Button>
+                <Button url="/app/promos" destructive>
+                  Cancel
+                </Button>
+              </ButtonGroup>
             </Form>
           </Card>
         </Layout.Section>
