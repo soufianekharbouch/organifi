@@ -7,7 +7,7 @@ node_modules
 /public/_dev
 /app/public/build
 /prisma/dev.sqlite-journal
-
+/prisma/dev.sqlite
 .env
 .env.*
 
