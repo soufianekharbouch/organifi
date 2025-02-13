@@ -4,7 +4,8 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = "mysql://m8gaskv0gxyzs1s5:e5q5k8a2x14h5r5n@umabrisfx8afs3ja.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/xvk3r8xa1rjho2lh"}
+  url      = env("DATABASE_URL")
+}
 
 model Session {
   id            String    @id
