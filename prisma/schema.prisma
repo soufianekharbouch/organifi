@@ -5,6 +5,7 @@ generator client {
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 model Session {
@@ -27,14 +28,14 @@ model Session {
 
 model Promo {
   id              Int      @id @default(autoincrement())
-  title           String
-  shop            String
-  targetProduct   String?  @default("") 
-  giftProduct     String?  @default("") 
-  type            String   @default("product_target") 
+  title           String   @db.Text
+  shop            String   @db.Text
+  targetProduct   String?  @default("") @db.Text
+  giftProduct     String?  @default("") @db.Text
+  type            String   @default("product_target") @db.VarChar(255) 
   targetQuantity  Int      @default(1)
   giftQuantity    Int      @default(1)
-  collectionTarget String? @default("") 
+  collectionTarget String? @default("") @db.Text
   amount_to_spend Float    @default(0.0)
   isActive        Boolean  @default(true)
   createdAt       DateTime @default(now())

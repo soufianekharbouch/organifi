@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "e467a00b9e91ccd6a74a87f57a8603bd"
-application_url = "https://organifi-1a031727f073.herokuapp.com"
+application_url = "https://beans-ride-sam-reception.trycloudflare.com"
 embedded = true
 name = "Organifi"
 handle = "organifi-3"
@@ -19,9 +19,9 @@ scopes = "read_discounts,write_discounts,write_products"
 
 [auth]
 redirect_urls = [
-  "https://organifi-1a031727f073.herokuapp.com/auth/callback",
-  "https://organifi-1a031727f073.herokuapp.com/auth/shopify/callback",
-  "https://organifi-1a031727f073.herokuapp.com/api/auth/callback"
+  "https://beans-ride-sam-reception.trycloudflare.com/auth/callback",
+  "https://beans-ride-sam-reception.trycloudflare.com/auth/shopify/callback",
+  "https://beans-ride-sam-reception.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]
