@@ -1,0 +1,44 @@
+query RunInput($selectedTags: [String!]) {
+  cart {
+    cost {
+      totalAmount {
+        amount
+      }
+      subtotalAmount {
+        amount
+      }
+    }
+    lines {
+      quantity
+      cost {
+        amountPerQuantity {
+          amount
+        }
+        totalAmount {
+          amount
+        }
+      }
+      merchandise {
+        __typename
+        ... on ProductVariant {
+          id
+          product {
+            id
+            handle
+            hasAnyTag(tags: $selectedTags) # Utilisation de la variable pour les tags
+          }
+        }
+      }
+      sellingPlanAllocation {
+        sellingPlan {
+          id
+        }
+      }
+    }
+  }
+  discountNode {
+    metafield(namespace: "$app:qpb", key: "function-configuration") {
+      value
+    }
+  }
+}
