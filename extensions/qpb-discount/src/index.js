@@ -63,7 +63,7 @@ export function run(input) {
 
           // Calculate the discount amount
           const discountAmount =
-            (line.cost.amountPerQuantity.amount * 15) / 100;
+            (line.cost.amountPerQuantity.amount * discountPercent) / 100;
 
           // Add the target and discount
           targets.push({
@@ -76,7 +76,7 @@ export function run(input) {
             targets,
             value: {
               percentage: {
-                value: discountPercent.toString(),
+                value: '14',
               },
             },
             message: `Discount applied for ${matchingTag.tag}`,
