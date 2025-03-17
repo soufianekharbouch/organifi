@@ -20,8 +20,8 @@ jobs:
       - name: Deploy
         env:
           # Token from the Partner Dashboard
-          SHOPIFY_CLI_PARTNERS_TOKEN: atkn_97ad6b5d514d1f7e273c51dd13dc407bf73e436dac3461c08ca310ddc5e44741
+          SHOPIFY_CLI_PARTNERS_TOKEN: ${{ secrets.SHOPIFY_CLI_PARTNERS_TOKEN }}
           COMMIT_URL: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
           # .env content after a deploy
-          SHOPIFY_API_KEY: e467a00b9e91ccd6a74a87f57a8603bd
+          SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
         run: shopify app deploy -f --source-control-url "$COMMIT_URL"
