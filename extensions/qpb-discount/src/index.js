@@ -76,7 +76,7 @@ export function run(input) {
             targets,
             value: {
               percentage: {
-                value: "99",
+                value: ""+discountPercent,
               },
             },
             message: `Discount applied for ${matchingTag.tag}`,
